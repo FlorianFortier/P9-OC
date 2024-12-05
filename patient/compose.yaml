@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      - MARIADB_DATABASE=patientdb
+      - MARIADB_ROOT_PASSWORD=root
+    ports:
+      - '3310:3306'
+    networks:
+      - springboot-network
+  patient-app:
+    build: .
+    restart: on-failure
+    image: patient-app:latest
+    ports:
+      - '8085:8085'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/patientdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on: [ mariadb ]
+    networks:
+      - springboot-network
+
+networks:
+  springboot-network:
+    external: true
